@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logo LIES | Account Settings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- DARK MODE DEFINITION FOR SETTINGS --- */
+        body.dark-mode { background-color: #1a202c; color: #e2e8f0; }
+        body.dark-mode .settings-card { background-color: #2d3748; border-color: #4a5568; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4); }
+        body.dark-mode h2, body.dark-mode h3 { color: #fff; }
+        body.dark-mode input[type="password"] { color: #fff; border-bottom-color: #555; }
+        body.dark-mode input[type="password"]:focus { border-bottom-color: #fff; }
+        body.dark-mode input::placeholder { color: #a0aec0; opacity: 0.8; }
+        body.dark-mode a { color: #999; }
+        body.dark-mode .logout-link { color: #ff6b6b; }
+        
+        /* BASE STYLES */
+        body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; color: #1f1f1f; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; transition: background-color 0.3s, color 0.3s; }
+        .settings-card { background-color: #ffffff; padding: 40px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1); width: 380px; text-align: center; border: 1px solid #eee; transition: background-color 0.3s, box-shadow 0.3s; }
+        h2 { color: #000; margin-bottom: 5px; font-weight: 700; font-size: 1.8rem; }
+        h3 { color: #333; margin-top: 25px; margin-bottom: 15px; font-weight: 600; font-size: 1.2rem; }
+        p { color: #555; font-size: 0.9rem; }
+        .username-display { color: #2ecc71; font-weight: 600; margin-bottom: 20px; }
+
+        input[type="password"] { width: 100%; padding: 12px 0; margin-bottom: 20px; border: none; border-bottom: 1px solid #ccc; background-color: transparent; color: #333; font-family: 'Poppins', sans-serif; font-size: 0.95rem; outline: none; transition: border-color 0.3s; text-align: center; }
+        input[type="password"]:focus { border-bottom-color: #000; }
+        input[type="submit"] { background-color: #000; color: white; padding: 15px 20px; border: none; border-radius: 50px; cursor: pointer; transition: transform 0.2s; width: 100%; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; }
+        input[type="submit"]:hover { background-color: #333; transform: translateY(-2px); }
+
+        .link-group { margin-top: 30px; }
+        a { color: #555; text-decoration: none; margin-top: 15px; display: block; font-size: 0.9rem; transition: color 0.2s; }
+        .logout-link { color: #e74c3c; font-weight: 600; margin-top: 20px; }
+        .logout-link:hover { text-decoration: underline; }
+
+        #theme-toggle-container { position: fixed; top: 25px; right: 25px; z-index: 100; }
+        .theme-toggle-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #555; transition: color 0.3s; }
+        .dark-mode .theme-toggle-btn { color: #FFD700; }
+    </style>
+</head>
+<body>
+    <div id="theme-toggle-container">
+        <button id="themeToggle" class="theme-toggle-btn"><i class="fas fa-moon"></i></button>
+    </div>
+
+    <div class="settings-card">
+        <h2>Account Settings</h2>
+        
+        <p class="username-display">Logged in as: {{ current_user.full_name }}</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <p class="{{ category }}" style="color: #e74c3c; margin-bottom: 15px;">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('settings') }}">
+            <h3>Change Password</h3>
+            <input type="password" name="old_password" placeholder="Current Password" required>
+            <input type="password" name="new_password" placeholder="New Password" required>
+            <input type="submit" value="Update Password">
+        </form>
+        
+        <div class="link-group">
+            <a href="{{ url_for('home') }}">← Back to Scanner</a>
+            <a href="{{ url_for('logout') }}" class="logout-link">Log Out</a>
+        </div>
+    </div>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        
+        function initializeTheme() {
+            if (localStorage.getItem('theme') === 'dark') {
+                body.classList.add('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        }
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+
+        document.addEventListener('DOMContentLoaded', initializeTheme);
+    </script>
+</body>
+</html>

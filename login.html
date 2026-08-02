@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logo LIES | Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
+    <style>
+        /* --- RESET --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #ffffff;
+            color: #000;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- BACKGROUND SLIDER --- */
+        .bg-slider { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -10; background-color: #000; }
+        .slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; opacity: 0; transform: scale(1.1) translateZ(0); transition: opacity 2s ease-in-out, transform 8s linear; }
+        .slide::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.1); }
+        .slide.active { opacity: 1; transform: scale(1) translateZ(0); }
+
+        /* --- HEADER --- */
+        header { display: flex; justify-content: space-between; align-items: center; padding: 40px 60px; position: fixed; width: 100%; top: 0; z-index: 50; }
+        .brand-mark { width: 50px; height: 50px; background-color: #fff; color: #000; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 24px; border-radius: 2px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .nav-pill { border: 1px solid rgba(255,255,255,0.5); border-radius: 50px; padding: 12px 35px; display: flex; gap: 25px; font-weight: 500; font-size: 0.85rem; background: rgba(0,0,0,0.3); backdrop-filter: blur(10px); color: white; letter-spacing: 1px; text-transform: uppercase; }
+        .nav-trigger { background: none; border: none; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; opacity: 0.8; transition: 0.3s; color: white; letter-spacing: 1px; text-transform: uppercase; }
+        .nav-trigger:hover { opacity: 1; }
+        .nav-link { text-decoration: none; color: white; opacity: 0.8; transition: 0.3s; }
+        .nav-link:hover { opacity: 1; }
+
+        /* --- MAIN LAYOUT --- */
+        main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; transform: translateZ(0); transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 10; position: relative; }
+        
+        /* --- LIQUID / SPONGY ENGINE --- */
+        .splash-container { position: relative; width: 600px; height: 300px; display: flex; align-items: center; justify-content: center; }
+        
+        /* The filter is applied to this layer to merge children */
+        .splash-liquid-layer { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            filter: url('#goo'); 
+            z-index: 1; 
+            animation: fadeInZoom 1s ease-out; 
+        }
+
+        /* Common Blob Styles */
+        .main-blob, .drop { 
+            position: absolute; 
+            background: #fff; 
+            border-radius: 50%;
+            transform: translateZ(0); /* Hardware Accel */
+        }
+
+        /* Center Spongy Mass */
+        .main-blob { 
+            top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); 
+            width: 450px; height: 180px; 
+            /* Irregular radius creates "spongy" look */
+            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; 
+            animation: spongyMorph 6s ease-in-out infinite alternate; 
+        }
+
+        /* Ejecting Drops (Creating Separation/Joining) */
+        /* They start at center and move out */
+        .drop-1 { width: 80px; height: 80px; top: 50%; left: 50%; animation: ejectLeft 4s ease-in-out infinite; }
+        .drop-2 { width: 60px; height: 60px; top: 50%; left: 50%; animation: ejectRight 5s ease-in-out infinite; }
+        .drop-3 { width: 50px; height: 50px; top: 50%; left: 50%; animation: ejectTop 6s ease-in-out infinite; }
+        .drop-4 { width: 70px; height: 70px; top: 50%; left: 50%; animation: ejectBottom 4.5s ease-in-out infinite; }
+
+        /* --- ANIMATION KEYFRAMES --- */
+        
+        /* Constant shapeshifting of main blob */
+        @keyframes spongyMorph { 
+            0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; width: 450px; }
+            33% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; width: 460px; }
+            66% { border-radius: 70% 30% 50% 50% / 30% 40% 60% 50%; width: 440px; }
+            100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; width: 450px; } 
+        }
+
+        /* Drops moving OUT and IN to create "Joining/Separating" */
+        @keyframes ejectLeft {
+            0% { transform: translate(-50%, -50%); }
+            50% { transform: translate(-220px, -80px); } /* Move out far enough to snap */
+            100% { transform: translate(-50%, -50%); }
+        }
+        @keyframes ejectRight {
+            0% { transform: translate(-50%, -50%); }
+            50% { transform: translate(180px, 60px); }
+            100% { transform: translate(-50%, -50%); }
+        }
+        @keyframes ejectTop {
+            0% { transform: translate(-50%, -50%); }
+            50% { transform: translate(80px, -120px); }
+            100% { transform: translate(-50%, -50%); }
+        }
+        @keyframes ejectBottom {
+            0% { transform: translate(-50%, -50%); }
+            50% { transform: translate(-100px, 90px); }
+            100% { transform: translate(-50%, -50%); }
+        }
+
+        @keyframes fadeInZoom { from { opacity: 0; transform: scale(0.8) translateZ(0); } to { opacity: 1; transform: scale(1) translateZ(0); } }
+
+        h1 { font-size: 6rem; font-weight: 300; letter-spacing: -3px; margin: 0; line-height: 1; position: relative; z-index: 10; color: #000; text-shadow: 0 2px 10px rgba(255,255,255,0.5); }
+        h1 span { font-weight: 700; }
+        main.shifted { transform: translateY(-250px) translateZ(0); }
+
+        /* --- LOGIN CONTAINER --- */
+        .login-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 20; padding-top: 100px; }
+        .login-box { width: 350px; padding: 40px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); box-shadow: 0 40px 80px rgba(0,0,0,0.5); border-radius: 30px; text-align: center; border: 1px solid rgba(255,255,255,0.8); opacity: 0; transform: translateY(150px) scale(0.9) translateZ(0); transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: auto; }
+        .login-wrapper.active .login-box { opacity: 1; transform: translateY(0) scale(1) translateZ(0); }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #999; transition: 0.2s; }
+        .close-btn:hover { color: #000; }
+
+        /* --- FORM --- */
+        .form-group { display: flex; flex-direction: column; gap: 25px; margin-top: 10px; }
+        input[type="text"], input[type="password"], input[type="email"] { width: 100%; padding: 15px 0; border: none; border-bottom: 2px solid #ddd; outline: none; font-family: 'Poppins', sans-serif; font-size: 1rem; transition: border-color 0.3s; background: transparent; }
+        input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus { border-bottom-color: #000; }
+        button.action-btn { margin-top: 20px; background-color: #000; color: #fff; border: none; padding: 15px; border-radius: 50px; font-weight: 600; cursor: pointer; transition: transform 0.2s, background 0.2s; width: 100%; }
+        button.action-btn:hover { transform: scale(1.05) translateZ(0); background-color: #333; }
+
+        .error-msg { color: #e74c3c; font-size: 0.85rem; margin-bottom: 15px; display: block; }
+        .success-msg { color: #2ecc71; font-size: 0.85rem; margin-bottom: 15px; display: block; }
+        .click-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 15; }
+        .click-overlay.active { display: block; }
+        .hidden { display: none; }
+        .switch-link { margin-top: 15px; font-size: 0.8rem; color: #555; cursor: pointer; text-decoration: underline; display: inline-block;}
+
+        @media (max-width: 600px) {
+            header { padding: 20px; } h1 { font-size: 3rem; }
+            .splash-container { width: 300px; } .main-blob { width: 280px; height: 140px; }
+            main.shifted { transform: translateY(-150px) translateZ(0); }
+            .login-wrapper { padding-top: 50px; }
+            .login-box { width: 90%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-slider">
+        <div class="slide active" style="background-image: url('https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1920&auto=format&fit=crop');"></div>
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=1920&auto=format&fit=crop');"></div> 
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1920&auto=format&fit=crop');"></div>
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=1920&auto=format&fit=crop');"></div>
+    </div>
+
+    <header>
+        <div class="brand-mark">L</div>
+        <div class="nav-pill">
+            <button class="nav-trigger" onclick="toggleLogin()">login</button>
+            <a href="{{ url_for('register') }}" class="nav-link">signup</a>
+        </div>
+    </header>
+
+    <main id="mainContent">
+        <div class="splash-container">
+            <div class="splash-liquid-layer">
+                <div class="main-blob"></div>
+                <div class="drop drop-1"></div>
+                <div class="drop drop-2"></div>
+                <div class="drop drop-3"></div>
+                <div class="drop drop-4"></div>
+            </div>
+            <h1>logo <span>LIES</span></h1>
+        </div>
+    </main>
+
+    <svg style="visibility: hidden; position: absolute;" width="0" height="0">
+        <defs>
+            <filter id="goo">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur" />
+                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo" />
+                <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+            </filter>
+        </defs>
+    </svg>
+
+    <div id="clickOverlay" class="click-overlay" onclick="toggleLogin()"></div>
+
+    <div id="loginWrapper" class="login-wrapper">
+        <div class="login-box">
+            <span class="close-btn" onclick="toggleLogin()">&times;</span>
+            <div id="statusMsg"></div>
+
+            <div id="loginSection">
+                <h2 style="font-weight: 300; margin-bottom: 20px;">Welcome Back</h2>
+                <div class="form-group">
+                    <input type="email" id="loginEmail" placeholder="Email" required>
+                    <input type="password" id="loginPass" placeholder="Password" required>
+                    <button class="action-btn" onclick="performLogin()">Enter System</button>
+                </div>
+                <span class="switch-link" onclick="switchView('reset')">Forgot Password?</span>
+            </div>
+
+            <div id="resetSection" class="hidden">
+                <h2 style="font-weight: 300; margin-bottom: 20px;">Reset Password</h2>
+                <div class="form-group">
+                    <input type="email" id="resetEmail" placeholder="Enter your email">
+                    <button class="action-btn" id="resetOtpBtn" onclick="sendResetOtp()">Send OTP</button>
+                    
+                    <div id="resetExtended" class="hidden">
+                        <input type="text" id="resetOtp" placeholder="Enter OTP">
+                        <input type="password" id="resetPass" placeholder="New Password">
+                        <button class="action-btn" onclick="finalizeReset()">Reset Password</button>
+                    </div>
+                </div>
+                <span class="switch-link" onclick="switchView('login')">Back to Login</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const main = document.getElementById('mainContent');
+        const wrapper = document.getElementById('loginWrapper');
+        const clickOverlay = document.getElementById('clickOverlay');
+        let isOpen = false;
+
+        function toggleLogin() {
+            isOpen = !isOpen;
+            if (isOpen) {
+                main.classList.add('shifted');
+                wrapper.classList.add('active');
+                clickOverlay.classList.add('active');
+            } else {
+                main.classList.remove('shifted');
+                wrapper.classList.remove('active');
+                clickOverlay.classList.remove('active');
+            }
+        }
+
+        // --- AUTH LOGIC ---
+        function switchView(view) {
+            document.getElementById('statusMsg').innerHTML = '';
+            if(view === 'reset') {
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('resetSection').classList.remove('hidden');
+            } else {
+                document.getElementById('loginSection').classList.remove('hidden');
+                document.getElementById('resetSection').classList.add('hidden');
+            }
+        }
+
+        async function performLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPass').value;
+            if(!email || !pass) return showStatus("Please fill all fields", 'error');
+
+            const res = await fetch('/api_login', {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({email: email, password: pass})
+            });
+            const data = await res.json();
+            
+            if(data.success) window.location.href = data.redirect;
+            else showStatus(data.message, 'error');
+        }
+
+        async function sendResetOtp() {
+            const email = document.getElementById('resetEmail').value;
+            if(!email) return showStatus("Enter email first", 'error');
+
+            const res = await fetch('/send_otp', {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({email: email, action: 'reset'})
+            });
+            const data = await res.json();
+            
+            showStatus(data.message, data.success ? 'success' : 'error');
+            if(data.success) {
+                document.getElementById('resetOtpBtn').style.display = 'none';
+                document.getElementById('resetExtended').classList.remove('hidden');
+            }
+        }
+
+        async function finalizeReset() {
+            const email = document.getElementById('resetEmail').value;
+            const otp = document.getElementById('resetOtp').value;
+            const pass = document.getElementById('resetPass').value;
+
+            const res = await fetch('/api_reset_password', {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({email: email, otp: otp, new_password: pass})
+            });
+            const data = await res.json();
+            
+            if(data.success) {
+                alert("Password Reset! Please login.");
+                switchView('login');
+            } else {
+                showStatus(data.message, 'error');
+            }
+        }
+
+        function showStatus(msg, type) {
+            const el = document.getElementById('statusMsg');
+            el.innerHTML = `<span class="${type === 'error' ? 'error-msg' : 'success-msg'}">${msg}</span>`;
+        }
+
+        // --- BACKGROUND ANIMATION ---
+        const slides = document.querySelectorAll('.slide');
+        let currentSlide = 0;
+        function nextSlide() {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
+        setInterval(nextSlide, 4000);
+    </script>
+</body>
+</html>

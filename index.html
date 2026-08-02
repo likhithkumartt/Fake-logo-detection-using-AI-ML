@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logo LIES | AI Logo Detection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* --- GLOBAL & DARK MODE --- */
+        body { overflow: hidden; height: 100vh; } 
+        body.dark-mode .nav-links a, body.dark-mode .user-greeting { color: #f0f0f0 !important; }
+        body.dark-mode .nav-links a:hover { color: #e74c3c !important; }
+        body.dark-mode .nav-icons button i { color: #f0f0f0 !important; }
+
+        .user-greeting { font-size: 1rem; font-weight: 700; color: #333; margin-right: 15px; border-right: 1px solid #ccc; padding-right: 15px; }
+        .logout-quick-btn { color: #e74c3c; font-weight: 600; font-size: 0.85rem; text-decoration: none; text-transform: uppercase; transition: opacity 0.2s; }
+        
+        .nav-links-wrapper { flex-grow: 1; display: flex; justify-content: center; align-items: center; }
+        .nav-links { display: flex; gap: 25px; font-weight: 600; }
+        .right-controls { display: flex; align-items: center; justify-content: flex-end; min-width: 250px; }
+
+        /* --- HEADER --- */
+        header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 30px 50px; 
+            position: absolute; width: 100%; top: 0; z-index: 50; 
+            background: transparent; box-shadow: none;
+        }
+        
+        /* --- LAYOUT FIXES --- */
+        .app-grid {
+            padding-top: 100px; 
+            height: 100vh;      
+            box-sizing: border-box;
+            padding-bottom: 20px;
+            overflow: hidden;   
+        }
+
+        .hero-content { height: 100%; display: flex; flex-direction: column; }
+        h1 { font-size: 3rem; line-height: 1.1; margin-bottom: 10px; }
+        .subtitle { margin-bottom: 20px; font-size: 1rem; color: #666; }
+        .btn-group { margin-bottom: 20px; }
+
+        .btn { transition: all 0.3s ease; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+
+        /* --- SCANNER --- */
+        .scanner-window {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            position: relative; 
+            width: 100%;
+            flex: 1; min-height: 0; 
+            padding: 0; 
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            overflow: hidden; 
+            transition: all 0.3s ease;
+        }
+        .scanner-window.dragging {
+            border-color: #3498db; border-style: dashed; background-color: rgba(52, 152, 219, 0.05);
+            box-shadow: 0 0 30px rgba(52, 152, 219, 0.3); transform: scale(1.01);
+        }
+
+        .visual-wrapper { position: relative; display: inline-block; max-width: 100%; max-height: 100%; line-height: 0; }
+        #previewImg, #webcamFeed { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: none; }
+        #canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+
+        #scanLine {
+            position: absolute; width: 100%; height: 3px; background: #2ecc71;
+            box-shadow: 0 0 15px #2ecc71, 0 0 30px #2ecc71;
+            top: 0; left: 0; display: none; z-index: 10;
+            animation: scanMove 2s infinite linear; opacity: 0.8;
+        }
+        @keyframes scanMove { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
+
+        .placeholder-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; line-height: 1.5; pointer-events: none; }
+        .spinner-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.9); display: flex; justify-content: center; align-items: center; border-radius: 10px; z-index: 50; }
+        .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #333; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div style="min-width: 150px;">
+            <div class="logo" style="font-weight: 700; font-size: 1.5rem;">logo <span>LIES</span></div>
+        </div>
+        <div class="nav-links-wrapper">
+            <div class="nav-links">
+                <a href="/" style="color: #000; text-decoration: none;">SCANNER</a>
+                <a href="/dashboard" style="color: #000; text-decoration: none;">ANALYTICS</a>
+                <a href="{{ url_for('settings') }}" style="color: #000; text-decoration: none;">SETTINGS</a>
+            </div>
+        </div>
+        <div class="right-controls">
+            <span class="user-greeting">{{ current_user.full_name }}</span>
+            <a href="{{ url_for('logout') }}" class="logout-quick-btn" style="margin-right: 15px;">LOG OUT</a>
+            <div class="nav-icons">
+                <button id="voiceToggleBtn" title="Voice Toggle" style="background:none; border:none; cursor:pointer;"><i class="fas fa-volume-mute"></i></button>
+                <button id="themeToggle" title="Theme Toggle" style="background:none; border:none; cursor:pointer; margin-left: 10px;"><i class="fas fa-moon"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <main class="app-grid">
+        <section class="hero-content">
+            <h1>Logo Verification <br>with AI Precision.</h1>
+            <p class="subtitle">Instantly detect counterfeit logos. Drag & Drop images here or use the buttons below.</p>
+
+            <div class="btn-group">
+                <input type="file" id="imageUpload" accept="image/*" hidden>
+                <button class="btn btn-black" onclick="document.getElementById('imageUpload').click()"><i class="fas fa-cloud-upload-alt"></i> Upload</button>
+                <button id="predictFileBtn" class="btn btn-analyze" style="display: none;"><i class="fas fa-bolt"></i> Analyze Image</button>
+                <button id="startWebcamBtn" class="btn btn-outline"><i class="fas fa-video"></i> Live Cam</button>
+            </div>
+
+            <div class="scanner-window" id="scannerWindow">
+                <div id="loader" class="spinner-container" style="display:none;">
+                    <div class="spinner"></div>
+                </div>
+                
+                <div id="placeholderText" class="placeholder-content placeholder-wrapper">
+                    <i class="fas fa-expand-arrows-alt placeholder-icon"></i>
+                    <h3>Scanner Ready</h3>
+                    <p>Drag & Drop Image Here</p>
+                </div>
+                
+                <div class="visual-wrapper">
+                    <div id="scanLine"></div> 
+                    <img id="previewImg">
+                    <video id="webcamFeed" autoplay playsinline></video>
+                    <canvas id="canvas"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <aside class="sidebar-content">
+            <div class="card stat-card"><div class="card-label">LIVE LOGO COUNT</div><div id="liveCount" class="big-number">0</div></div>
+            <div class="card monitor-card">
+                <div class="monitor-row"><span><i class="fas fa-microchip"></i> GPU Temp</span><span id="gpuTemp" class="mono-text">--</span></div>
+                <div class="monitor-row"><span><i class="fas fa-server"></i> CPU Usage</span><span id="cpuUsage" class="mono-text">--%</span></div>
+                <div class="monitor-row"><span><i class="fas fa-memory"></i> RAM Usage</span><span id="ramUsage" class="mono-text">--%</span></div>
+            </div>
+            <div class="history-header"><h3><i class="fas fa-history"></i> Recent Scans</h3><button id="clearHistoryBtn">Clear</button></div>
+            <div id="historyList" class="history-list"><div class="empty-state">No scans yet</div></div>
+        </aside>
+    </main>
+
+    <button class="chat-btn" onclick="toggleChat()"><i class="fas fa-comment-dots"></i></button>
+    <div id="chatWindow" class="chat-panel">
+        <div class="chat-header">
+            logo LIES AI 
+            <span style="float: right;">
+                <i class="fas fa-trash" id="clearChatBtn" style="cursor:pointer; margin-right:15px; opacity:0.8;" title="Clear Chat History"></i>
+                <span onclick="toggleChat()" style="cursor:pointer;">×</span>
+            </span>
+        </div>
+        <div id="chatMessages" class="chat-body"><div class="bot-msg">Hello! I am ready to help.</div></div>
+        <div class="chat-footer"><input type="text" id="chatInput" placeholder="Ask anything..." onkeypress="handleEnter(event)"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
